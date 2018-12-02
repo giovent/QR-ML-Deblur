@@ -3,22 +3,25 @@ import numpy as np
 
 class AutoEncoder:
   def __init__(self, configs, from_zero=True):
+    tf.reset_default_graph()
     self.input_size = configs['input_size']
-
-    self.filters_number = configs['filters_number']
-    self.layers_number = len(self.filters_number)
-    self.filters_size = configs['filters_size']
-
     if from_zero:
+      self.filters_number = configs['filters_number']
+      self.layers_number = len(self.filters_number)
+      self.filters_size = configs['filters_size']
+
       self.build_model()
+      self.init_session()
     else:
       self.load_model(configs['model_path'])
 
-    self.init_session()
     self.warmup()
 
   def load_model(self, path):
-    pass
+    self.sess = tf.Session()
+    tf.saved_model.loader.load(self.sess, ['serve'], path)
+    self.input = self.sess.graph.get_tensor_by_name('input:0')
+    self.output = self.sess.graph.get_tensor_by_name('Sigmoid:0')
 
   def build_model(self):
     self.input = tf.placeholder(tf.float32, (None, self.input_size[0], self.input_size[1] , 1), name='input')
@@ -77,6 +80,9 @@ class AutoEncoder:
 
   def infer(self, input):
     return self.sess.run([self.output], feed_dict={self.input: input})
+
+  def save(self, folder = './'):
+    tf.saved_model.simple_save(self.sess, folder, inputs={"input": self.input}, outputs={"output": self.output})
 
 if __name__ == '__main__':
   configs = {
