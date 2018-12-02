@@ -54,7 +54,6 @@ class DataProcessor:
       dst = self.distort(img, out_size)
       if not os.path.exists(out_folder):
         os.makedirs(out_folder)
-      print(os.path.join(out_folder, img_path))
       cv2.imwrite(os.path.join(out_folder, img_path), dst)
 
   def median_blur(self, img, level):
@@ -72,10 +71,9 @@ class DataProcessor:
       dst = self.gaussian_blur(img)
       if not os.path.exists(out_folder):
         os.makedirs(out_folder)
-      print(os.path.join(out_folder, img_path))
       cv2.imwrite(os.path.join(out_folder, img_path), dst)
 
-  def add_noise(self, img, level=10):
+  def add_noise(self, img, level=15):
     h, w = img.shape[0], img.shape[1]
     img = img + np.random.randn(h, w, 3) * level
     return img
@@ -88,7 +86,6 @@ class DataProcessor:
       dst = self.add_noise(img)
       if not os.path.exists(out_folder):
         os.makedirs(out_folder)
-      print(os.path.join(out_folder, img_path))
       cv2.imwrite(os.path.join(out_folder, img_path), dst)
 
   def motion_blur(self, img, size=10):
@@ -112,10 +109,10 @@ class DataProcessor:
 
 
 if __name__=='__main__':
-  for length in range(100, 151, 5):
-    QR_Maker().make_QRs(how_many=2, data_length=length, out_folder='../Data/Original')
+  for length in range(50, 151, 5):
+    QR_Maker().make_QRs(how_many=500, data_length=length, out_folder='../Data/Original')
 
-  DataProcessor().distort_from_folder('../Data/Original', '../Data/Distorted', [235, 235])
+  DataProcessor().distort_from_folder('../Data/Original', '../Data/Distorted', [220, 220])
   DataProcessor().add_noise_from_folder('../Data/Distorted', '../Data/Noisy')
   #DataProcessor().blur_from_folder('../Data/Distorted', '../Data/Blurred')
   DataProcessor().motion_blur_from_folder('../Data/Noisy', '../Data/Motion_Blur')
